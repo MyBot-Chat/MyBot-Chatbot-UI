@@ -44,7 +44,6 @@ export default function Chatbot() {
         <div className="flex-1 overflow-y-auto mb-4 space-y-2">
         {messages.map((msg) => {
             if (msg.sender === "bot") {
-              // Bot message 
               return (
                 <div key={msg.id} className="flex justify-start">
                   <div className="flex items-center gap-2">
@@ -53,7 +52,6 @@ export default function Chatbot() {
                 </div>
               );
             } else {
-              // User message 
               return (
                 <div key={msg.id} className="flex justify-end">
                   <div className="flex items-center gap-2">
