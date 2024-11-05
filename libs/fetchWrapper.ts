@@ -22,8 +22,7 @@ const post = async (endpoint: string, body: any) => {
   try {
     const res = await axios.post(`${baseUrl}${endpoint}`, body, {
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+        "Content-Type": "application/json",                                     
         Authorization: `Bearer ${process.env.API_TOKEN}`,
       },
     });

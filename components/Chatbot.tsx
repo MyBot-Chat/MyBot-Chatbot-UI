@@ -70,6 +70,7 @@ const Chatbot: React.FC = () => {
   const OnChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
   };
+  
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
