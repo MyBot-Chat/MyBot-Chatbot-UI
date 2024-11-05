@@ -13,7 +13,6 @@ const createSession = async (): Promise<any> => {
     }
 
     const response = await fetchWrapper.post('/api/Conversation', body);
-
     if (response?.sessionId) {
       sessionStorage.setItem('sessionKey', response.sessionId);
     }
