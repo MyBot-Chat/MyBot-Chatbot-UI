@@ -1,6 +1,9 @@
 "use client";
-import { Bot, User } from "lucide-react";
-import { useState , KeyboardEvent} from "react";
+import  ChatSessionServices from "@/services/chatsession.service";
+import  SendMessageService from "@/services/sendmessage.service";
+import { Bot, RefreshCcw, Send, User } from "lucide-react";
+import { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from "react";
+import { Toaster, toast } from 'sonner'
 
 type Message = {
   id: number;
@@ -8,78 +11,157 @@ type Message = {
   text: string;
 };
 
-export default function Chatbot() {
+const Chatbot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [sessionId, setSessionId] = useState<string | undefined>();
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
+
     const newMessage: Message = {
       id: messages.length + 1,
       sender: "user",
       text: input,
     };
+
     setMessages([...messages, newMessage]);
     setInput("");
+    setLoading(true);
 
-    setTimeout(() => {
-      const botReply: Message = {
-        id: messages.length + 2,
-        sender: "bot",
-        text: input,
-      };
-      setMessages((prev) => [...prev, botReply]);
-    }, 1000);
+
+    // Send the message using SendMessageService
+    try {
+      const response = await SendMessageService.sendChatMessage(sessionId!, input);
+      setLoading(false); 
+
+      if (response.success) {
+        const botMessage: Message = {
+          id: messages.length + 2,
+          sender: "bot",
+          text: response.content,
+        };
+        setMessages((prevMessages) => [...prevMessages, botMessage]);
+        toast.success("Message sent successfully!");
+      } else {
+        console.error("Error sending message:", response.message);
+        toast.error("Failed to send message."); 
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Error:", error);
+      toast.error("An error occurred while sending the message.");
+    }
+
   };
+
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleSend();
     }
   };
 
+  const resetMessages = () => {
+    setMessages([]);
+  };
+
+  const OnChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+  
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // Check or create a session 
+  const checkSession = async () => {
+    const session = await ChatSessionServices.checkSession();
+    if (!session.exists) {
+      const newSession = await ChatSessionServices.createSession();
+      // if (newSession && newSession.sessionId) {
+      //   setSessionId(newSession.sessionId);
+      // }
+    } else {
+      setSessionId(session.sessionId);
+    }
+  };
+
+  useEffect(() => {
+    checkSession();
+  }, []);
+
   return (
-    <div className="flex justify-center items-center w-screen h-screen bg-gray-100">
-      <div className="w-full h-full md:max-w-md md:h-auto bg-white rounded-lg shadow-md p-4 flex flex-col">
-        <h3 className="text-xl font-semibold text-center mb-4">Chatbot</h3>
-        <div className="flex-1 overflow-y-auto mb-4 space-y-2">
-        {messages.map((msg) => {
-            if (msg.sender === "bot") {
-              return (
-                <div key={msg.id} className="flex justify-start">
-                  <div className="flex items-center gap-2">
-                    <Bot /> {msg.text}
-                  </div>
-                </div>
-              );
-            } else {
-              return (
-                <div key={msg.id} className="flex justify-end">
-                  <div className="flex items-center gap-2">
-                  {msg.text}
-                  <User size={36} /> 
-                  </div>
-                </div>
-              );
-            }
-          })}
-        </div>
-        <div className="flex items-center">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
-            placeholder="Type a message..."
-          />
+    <div className="bg-gray-100 h-full w-full flex flex-col max-w-lg mx-auto">
+      <div className="bg-teal-600 p-4 text-white flex justify-between items-center">
+        <button className="hover:bg-teal-400 rounded-md p-1">
+          <User />
+        </button>
+        <span>MyBot.Chat</span>
+        <div className="relative inline-block text-left">
           <button
-            onClick={handleSend}
-            className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+            id="reset"
+            onClick={resetMessages}
+            className="hover:bg-teal-400 rounded-md p-1"
           >
-            Send
+            <RefreshCcw />
           </button>
         </div>
       </div>
+
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex flex-col space-y-2">
+          {messages.map((msg) => (
+            <div key={msg.id} className={`chat ${msg.sender === "bot" ? "chat-start" : "chat-end"}`}>
+              <div className="chat-image avatar">
+                <div className="w-10 rounded-full p-2 bg-slate-500">
+                  {msg.sender === "bot" ? <Bot color="#000000" /> : <User color="#fff" />}
+                </div>
+              </div>
+              <div className="chat-bubble bg-gray-300 break-words">
+                <p className="text-gray-900">{msg.text}</p>
+              </div>
+            </div>
+          ))}
+          {loading && (
+            <div className="chat chat-start">
+              <div className="chat-image avatar">
+                <div className="w-10 rounded-full border shadow-md p-2">
+                  <Bot color="#000000" />
+                </div>
+              </div>
+              <div className="chat-bubble bg-gray-300 break-words">
+                <div className="flex items-center gap-1">
+                  <div className="h-3 w-3 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="h-3 w-3 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="h-3 w-3 bg-white rounded-full animate-bounce"></div>
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      <div className="p-4 flex items-center">
+        <input
+          type="text"
+          value={input}
+          onChange={OnChange}
+          onKeyDown={handleKeyDown}
+          className="flex-1 border rounded-full px-4 py-2 focus:outline-none"
+          placeholder="Type a message..."
+        />
+        <button
+          className="bg-teal-600 text-white rounded-full p-2 ml-2 hover:bg-teal-500 focus:outline-none"
+          onClick={handleSend}
+        >
+          <Send />
+        </button>
+      </div>
     </div>
   );
-}
+};
+
+export default Chatbot
