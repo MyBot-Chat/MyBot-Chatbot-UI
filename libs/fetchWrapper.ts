@@ -1,14 +1,15 @@
-import axios from "axios";
-import { baseUrl } from "../utils/config";
+import axios, { AxiosRequestConfig } from 'axios';
+import { baseUrl } from '../utils/config';
 
-type QueryT = { [key: string]: string | number | boolean | null | undefined };
+type QueryT = Record<string, string | number | boolean | null | undefined>;
 
 const axiosInstance = axios.create({
-    baseURL: process.env.BASE_URL,
+    baseURL: baseUrl,
     headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${process.env.API_TOKEN}`,
     },
+    withCredentials: true
 });
 
 axiosInstance.interceptors.request.use(
@@ -23,57 +24,58 @@ axiosInstance.interceptors.request.use(
 );
 
 axiosInstance.interceptors.response.use(
-    (response) => {
-        console.log('Response:', response);
-        return response.data;
-    },
+    (response) => response,
     (error) => {
-        console.error('Response Error:', error);
-        return Promise.reject(error.response ? error.response.data : error.message);
+        if (!error.response) {
+            console.error('Network error:', error.message);
+        } else {
+            console.error('Response error:', error.response.status, error.response.data);
+        }
+        return Promise.reject(error);
     }
 );
 
 
-const get = async (endpoint: string, query?: QueryT) => {
+const get = async <T = any>(endpoint: string, query?: QueryT, config?: AxiosRequestConfig): Promise<T> => {
     try {
-        const url = `${endpoint}${query ? `?${new URLSearchParams(query as Record<string, string>)}` : ""}`;
-        const res = await axiosInstance.get(url);
-        return res; 
-    } catch (error: any) {
-        return handleAxiosError(error); 
-    }
-};
-
-
-const post = async (endpoint: string, body: any) => {
-    try {
-        const res = await axiosInstance.post(endpoint, body);
-        return res;
+        const url = `${endpoint}${query ? `?${new URLSearchParams(query as Record<string, string>)}` : ''}`;
+        const res = await axiosInstance.get<T>(url, config,);
+        return res.data;
     } catch (error: any) {
         return handleAxiosError(error);
     }
 };
 
-const put = async (endpoint: string, body: any) => {
+const post = async <T = any>(endpoint: string, body: any, config?: AxiosRequestConfig): Promise<T> => {
     try {
-        const res = await axiosInstance.put(endpoint, body);
-        return res;
+        const res = await axiosInstance.post<T>(endpoint, body, config);
+        return res.data;
     } catch (error: any) {
         return handleAxiosError(error);
     }
 };
 
-const del = async (endpoint: string) => {
+const put = async <T = any>(endpoint: string, body: any, config?: AxiosRequestConfig): Promise<T> => {
     try {
-        const res = await axiosInstance.delete(endpoint);
-        return res;
+        const res = await axiosInstance.put<T>(endpoint, body, config);
+        return res.data;
+    } catch (error: any) {
+        return handleAxiosError(error);
+    }
+};
+
+const del = async <T = any>(endpoint: string, config?: AxiosRequestConfig): Promise<T> => {
+    try {
+        const res = await axiosInstance.delete<T>(endpoint, config);
+        return res.data;
     } catch (error: any) {
         return handleAxiosError(error);
     }
 };
 
 const handleAxiosError = (error: any) => {
-    return error?.response?.data || { message: "An unknown error occurred" };
+    return error?.response?.data || { message: 'An unknown error occurred' };
 };
+
 
 export default { get, post, put, del };
