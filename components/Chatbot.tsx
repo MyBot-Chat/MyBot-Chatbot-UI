@@ -112,18 +112,35 @@ const Chatbot: React.FC = () => {
 
       <div className="flex-1 overflow-y-auto p-4">
         <div className="flex flex-col space-y-2">
-          {messages.map((msg) => (
-            <div key={msg.id} className={`chat ${msg.sender === "bot" ? "chat-start" : "chat-end"}`}>
-              <div className="chat-image avatar">
-                <div className="w-10 rounded-full p-2 bg-slate-500">
-                  {msg.sender === "bot" ? <Bot color="#000000" /> : <User color="#fff" />}
+        {messages.map((msg) => {
+            if (msg.sender === "bot") {
+              return (
+                <div key={msg.id} className="chat chat-start">
+                  <div className="chat-image avatar">
+                    <div className="w-10 rounded-full border shadow-md p-2">
+                      <Bot color="#000000" />
+                    </div>
+                  </div>
+                  <div className="chat-bubble bg-gray-300 break-words">
+                    <p className="text-gray-900">{msg.text}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="chat-bubble bg-gray-300 break-words">
-                <p className="text-gray-900">{msg.text}</p>
-              </div>
-            </div>
-          ))}
+              );
+            } else {
+              return (
+                <div key={msg.id} className="chat chat-end">
+                  <div className="chat-image avatar">
+                    <div className="w-10 rounded-full p-2 bg-slate-500">
+                      <User color="#fff" />
+                    </div>
+                  </div>
+                  <div className="chat-bubble bg-gray-300 break-words">
+                    <p className="text-gray-900">{msg.text}</p>
+                  </div>
+                </div>
+              );
+            }
+          })}
           {loading && (
             <div className="chat chat-start">
               <div className="chat-image avatar">

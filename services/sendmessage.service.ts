@@ -18,7 +18,7 @@ const sendChatMessage = async (sessionId: string, message: string, imageUrl?: st
             resetImageData();
         }
 
-        const response = await fetchWrapper.post('/api/ChatMessage', data);
+        const response = await fetchWrapper.post('/ChatMessage', data);
 
         if (response.messageId) {
             return {

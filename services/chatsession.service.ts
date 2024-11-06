@@ -12,7 +12,7 @@ const createSession = async (): Promise<any> => {
       throw new Error("CHATBOT_ID environment variable is not set");
     }
 
-    const response = await fetchWrapper.post('/api/Conversation', body);
+    const response = await fetchWrapper.post('/Conversation', body);
     if (response?.sessionId) {
       sessionStorage.setItem('sessionKey', response.sessionId);
     }
