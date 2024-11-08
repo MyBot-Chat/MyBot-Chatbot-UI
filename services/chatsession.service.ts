@@ -1,10 +1,9 @@
 import fetchWrapper from "../libs/fetchWrapper";
-
+import { CHATBOT_ID} from '../utils/config';
 
 const createSession = async (): Promise<any> => {
   try {
-    const botId = process.env.NEXT_PUBLIC_CHATBOT_ID;
-    const sessionId = "d657297a-b060-4fc0-a5d8-66b3fd01bf26";
+    const botId = CHATBOT_ID;
     const body = {
       botid: botId,
     };
@@ -14,11 +13,13 @@ const createSession = async (): Promise<any> => {
     }
 
     const response = await fetchWrapper.post('/api/Conversation', body);
-
+    if (response) {
+      sessionStorage.setItem('sessionKey', response.sessionId);
+    }
     return {
       success: true,
       data: response,
-    };
+    }
   } catch (error: unknown) {
     return {
       success: false,
@@ -38,9 +39,16 @@ const checkSession = (): { exists: boolean; sessionId?: string } => {
   return { exists: false };
 };
 
+
+const removeSession = (): void => {
+  sessionStorage.removeItem('sessionKey');
+  console.log("Session key removed from sessionStorage.");
+};
+
 export const ChatSessionServices = {
   createSession,
   checkSession,
+  removeSession,
 };
 
 export default ChatSessionServices;

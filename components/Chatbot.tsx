@@ -6,10 +6,12 @@ import { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from "react";
 import { Toaster, toast } from 'sonner'
 
 type Message = {
-  id: number;
-  sender: "bot" | "user";
-  text: string;
+  messageId: number;
+  username: "Bot" | "Default User";
+  content: string;
+  imageUrl?: string 
 };
+
 
 const Chatbot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -22,29 +24,28 @@ const Chatbot: React.FC = () => {
     if (!input.trim()) return;
 
     const newMessage: Message = {
-      id: messages.length + 1,
-      sender: "user",
-      text: input,
+      messageId: messages.length + 1,
+      username: "Default User",
+      content: input,
     };
 
     setMessages([...messages, newMessage]);
     setInput("");
     setLoading(true);
 
-
     // Send the message using SendMessageService
+
     try {
       const response = await SendMessageService.sendChatMessage(sessionId!, input);
       setLoading(false); 
 
       if (response.success) {
         const botMessage: Message = {
-          id: messages.length + 2,
-          sender: "bot",
-          text: response.content,
+          messageId: response.messageId,
+          username: "Bot",
+          content: response.content,
         };
         setMessages((prevMessages) => [...prevMessages, botMessage]);
-        toast.success("Message sent successfully!");
       } else {
         console.error("Error sending message:", response.message);
         toast.error("Failed to send message."); 
@@ -63,14 +64,33 @@ const Chatbot: React.FC = () => {
     }
   };
 
+  const resetMessagesDeleteChatSession = () => {
+    const session = ChatSessionServices.checkSession();
+    if (session.exists) {
+      ChatSessionServices.removeSession();
+    }
+  }
+
   const resetMessages = () => {
     setMessages([]);
+    setSessionId("");
+    resetMessagesDeleteChatSession();
   };
 
   const OnChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
   };
   
+  const loadMessageHistory = async () => {
+    if (sessionId) {
+      const history = await SendMessageService.loadMessageHistory(sessionId);
+      if (history && history.success) {
+        setMessages(history.message);
+      } else {
+        console.error("Failed to load message history.");
+      }
+    }
+  };
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -81,7 +101,7 @@ const Chatbot: React.FC = () => {
     if (!session.exists) {
       const newSession = await ChatSessionServices.createSession();
       if (newSession.success) {
-        console.log("Session created successfully:", newSession.data);
+        setSessionId(newSession.sessionId);
       } else {
         console.error("Failed to create session:", newSession.message);
       }
@@ -93,6 +113,13 @@ const Chatbot: React.FC = () => {
   useEffect(() => {
     checkSession();
   }, []);
+
+  // loadMessageHistory
+  useEffect(() => {
+    if (sessionId) {
+      loadMessageHistory();
+    }
+  }, [sessionId]);
 
   return (
     <div className="bg-gray-100 h-full w-full flex flex-col max-w-lg mx-auto">
@@ -115,29 +142,30 @@ const Chatbot: React.FC = () => {
       <div className="flex-1 overflow-y-auto p-4">
         <div className="flex flex-col space-y-2">
         {messages.map((msg) => {
-            if (msg.sender === "bot") {
+            if (msg.username === "Bot") {
               return (
-                <div key={msg.id} className="chat chat-start">
+                <div key={msg.messageId} className="chat chat-start">
                   <div className="chat-image avatar">
                     <div className="w-10 rounded-full border shadow-md p-2">
                       <Bot color="#000000" />
                     </div>
                   </div>
-                  <div className="chat-bubble bg-gray-300 break-words">
-                    <p className="text-gray-900">{msg.text}</p>
+                  <div className="chat-bubble">
+                    <div 
+                        dangerouslySetInnerHTML={{ __html: msg.content }} />
                   </div>
                 </div>
               );
             } else {
               return (
-                <div key={msg.id} className="chat chat-end">
+                <div key={msg.messageId} className="chat chat-end">
                   <div className="chat-image avatar">
                     <div className="w-10 rounded-full p-2 bg-slate-500">
                       <User color="#fff" />
                     </div>
                   </div>
-                  <div className="chat-bubble bg-gray-300 break-words">
-                    <p className="text-gray-900">{msg.text}</p>
+                  <div className="chat-bubble">
+                    <div dangerouslySetInnerHTML={{ __html: msg.content }} />
                   </div>
                 </div>
               );
