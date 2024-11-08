@@ -80,9 +80,11 @@ const Chatbot: React.FC = () => {
     const session = await ChatSessionServices.checkSession();
     if (!session.exists) {
       const newSession = await ChatSessionServices.createSession();
-      // if (newSession && newSession.sessionId) {
-      //   setSessionId(newSession.sessionId);
-      // }
+      if (newSession.success) {
+        console.log("Session created successfully:", newSession.data);
+      } else {
+        console.error("Failed to create session:", newSession.message);
+      }
     } else {
       setSessionId(session.sessionId);
     }

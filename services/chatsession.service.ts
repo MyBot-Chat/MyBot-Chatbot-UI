@@ -3,7 +3,8 @@ import fetchWrapper from "../libs/fetchWrapper";
 
 const createSession = async (): Promise<any> => {
   try {
-    const botId = process.env.CHATBOT_ID;
+    const botId = process.env.NEXT_PUBLIC_CHATBOT_ID;
+    const sessionId = "d657297a-b060-4fc0-a5d8-66b3fd01bf26";
     const body = {
       botid: botId,
     };
@@ -12,12 +13,12 @@ const createSession = async (): Promise<any> => {
       throw new Error("CHATBOT_ID environment variable is not set");
     }
 
-    const response = await fetchWrapper.post('/Conversation', body);
-    if (response?.sessionId) {
-      sessionStorage.setItem('sessionKey', response.sessionId);
-    }
+    const response = await fetchWrapper.post('/api/Conversation', body);
 
-    return response;
+    return {
+      success: true,
+      data: response,
+    };
   } catch (error: unknown) {
     return {
       success: false,
