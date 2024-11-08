@@ -1,15 +1,12 @@
-import axios, { AxiosRequestConfig } from 'axios';
-import { baseUrl } from '../utils/config';
-
-type QueryT = Record<string, string | number | boolean | null | undefined>;
+import axios from 'axios';
+import { baseUrl , API_TOKEN} from '../utils/config';
 
 const axiosInstance = axios.create({
     baseURL: baseUrl,
     headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.API_TOKEN}`,
+        'Authorization': `Bearer ${API_TOKEN}`,
     },
-    withCredentials: true
 });
 
 axiosInstance.interceptors.request.use(
@@ -35,38 +32,28 @@ axiosInstance.interceptors.response.use(
     }
 );
 
+const get = async (endpoint: string, query?: any) => {
 
-const get = async <T = any>(endpoint: string, query?: QueryT, config?: AxiosRequestConfig): Promise<T> => {
     try {
-        const url = `${endpoint}${query ? `?${new URLSearchParams(query as Record<string, string>)}` : ''}`;
-        const res = await axiosInstance.get<T>(url, config,);
+        const url = `${endpoint}/${query}`;
+        const res = await axiosInstance.get(url);
         return res.data;
     } catch (error: any) {
         return handleAxiosError(error);
     }
 };
 
-const post = async <T = any>(endpoint: string, body: any, config?: AxiosRequestConfig): Promise<T> => {
+const post = async (endpoint: string, body: any) => {
     try {
-        const res = await axiosInstance.post<T>(endpoint, body, config);
+        const res = await axiosInstance.post(endpoint, body);
         return res.data;
     } catch (error: any) {
         return handleAxiosError(error);
     }
 };
-
-const put = async <T = any>(endpoint: string, body: any, config?: AxiosRequestConfig): Promise<T> => {
+const del = async (endpoint: string)  => {
     try {
-        const res = await axiosInstance.put<T>(endpoint, body, config);
-        return res.data;
-    } catch (error: any) {
-        return handleAxiosError(error);
-    }
-};
-
-const del = async <T = any>(endpoint: string, config?: AxiosRequestConfig): Promise<T> => {
-    try {
-        const res = await axiosInstance.delete<T>(endpoint, config);
+        const res = await axiosInstance.delete(endpoint);
         return res.data;
     } catch (error: any) {
         return handleAxiosError(error);
@@ -78,4 +65,4 @@ const handleAxiosError = (error: any) => {
 };
 
 
-export default { get, post, put, del };
+export default { get, post, del };

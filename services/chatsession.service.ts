@@ -1,9 +1,9 @@
 import fetchWrapper from "../libs/fetchWrapper";
-
+import { CHATBOT_ID} from '../utils/config';
 
 const createSession = async (): Promise<any> => {
   try {
-    const botId = process.env.CHATBOT_ID;
+    const botId = CHATBOT_ID;
     const body = {
       botid: botId,
     };
@@ -12,12 +12,14 @@ const createSession = async (): Promise<any> => {
       throw new Error("CHATBOT_ID environment variable is not set");
     }
 
-    const response = await fetchWrapper.post('/Conversation', body);
-    if (response?.sessionId) {
+    const response = await fetchWrapper.post('/api/Conversation', body);
+    if (response) {
       sessionStorage.setItem('sessionKey', response.sessionId);
     }
-
-    return response;
+    return {
+      success: true,
+      data: response,
+    }
   } catch (error: unknown) {
     return {
       success: false,
@@ -37,9 +39,16 @@ const checkSession = (): { exists: boolean; sessionId?: string } => {
   return { exists: false };
 };
 
+
+const removeSession = (): void => {
+  sessionStorage.removeItem('sessionKey');
+  console.log("Session key removed from sessionStorage.");
+};
+
 export const ChatSessionServices = {
   createSession,
   checkSession,
+  removeSession,
 };
 
 export default ChatSessionServices;
