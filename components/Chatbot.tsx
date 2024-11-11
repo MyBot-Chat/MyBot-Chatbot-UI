@@ -1,6 +1,7 @@
 "use client";
 import  ChatSessionServices from "@/services/chatsession.service";
 import  SendMessageService from "@/services/sendmessage.service";
+import { strict } from "assert";
 import { Bot, RefreshCcw, Send, User } from "lucide-react";
 import { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from "react";
 import { Toaster, toast } from 'sonner'
@@ -22,19 +23,22 @@ const Chatbot: React.FC = () => {
 
   const handleSend = async () => {
     if (!input.trim()) return;
-
+  
     const newMessage: Message = {
       messageId: messages.length + 1,
       username: "Default User",
       content: input,
     };
-
+  
     setMessages([...messages, newMessage]);
     setInput("");
     setLoading(true);
 
-    // Send the message using SendMessageService
-
+    await sendmessageToChatbot();
+  };
+  
+   
+  const sendmessageToChatbot = async () => {
     try {
       const response = await SendMessageService.sendChatMessage(sessionId!, input);
       setLoading(false); 
@@ -54,9 +58,8 @@ const Chatbot: React.FC = () => {
       setLoading(false);
       console.error("Error:", error);
       toast.error("An error occurred while sending the message.");
-    }
-
-  };
+    } 
+  }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -64,17 +67,18 @@ const Chatbot: React.FC = () => {
     }
   };
 
-  const resetMessagesDeleteChatSession = () => {
-    const session = ChatSessionServices.checkSession();
+  const resetMessagesDeleteChatSession = async () => {
+    const  session = await ChatSessionServices.checkSession();
     if (session.exists) {
       ChatSessionServices.removeSession();
     }
   }
 
-  const resetMessages = () => {
-    setMessages([]);
+  const resetMessages = async () => {
     setSessionId("");
-    resetMessagesDeleteChatSession();
+    setMessages([]);
+    await resetMessagesDeleteChatSession();
+    window.location.reload();
   };
 
   const OnChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -96,17 +100,19 @@ const Chatbot: React.FC = () => {
   }, [messages]);
 
   // Check or create a session 
-  const checkSession = async () => {
+  const checkSession = async (): Promise<string | undefined> => {
     const session = await ChatSessionServices.checkSession();
     if (!session.exists) {
       const newSession = await ChatSessionServices.createSession();
       if (newSession.success) {
         setSessionId(newSession.sessionId);
+        return newSession.sessionId;
       } else {
         console.error("Failed to create session:", newSession.message);
       }
     } else {
       setSessionId(session.sessionId);
+      await loadMessageHistory()
     }
   };
 
