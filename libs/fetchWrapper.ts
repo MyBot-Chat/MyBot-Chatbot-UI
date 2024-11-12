@@ -51,14 +51,18 @@ const post = async (endpoint: string, body: any) => {
         return handleAxiosError(error);
     }
 };
-const del = async (endpoint: string)  => {
+const del = async (endpoint: string, query?: any, data?: any) => {
     try {
-        const res = await axiosInstance.delete(endpoint);
+        const res = await axiosInstance.delete(endpoint, {
+            params: query,
+            data: data,
+        });
         return res.data;
     } catch (error: any) {
         return handleAxiosError(error);
     }
 };
+
 
 const handleAxiosError = (error: any) => {
     return error?.response?.data || { message: 'An unknown error occurred' };
