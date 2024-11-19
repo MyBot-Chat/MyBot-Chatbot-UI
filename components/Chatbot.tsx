@@ -2,7 +2,7 @@
 import  ChatSessionServices from "@/services/chatsession.service";
 import  SendMessageService from "@/services/sendmessage.service";
 import { strict } from "assert";
-import { Book, Bot, RefreshCcw, Send, User } from "lucide-react";
+import { Book, Bot, RefreshCcw, Send, User, UserCog2 } from "lucide-react";
 import { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from "react";
 import { Toaster, toast } from 'sonner'
 import Link from 'next/link';
@@ -131,9 +131,9 @@ const Chatbot: React.FC = () => {
   return (
         <div className="bg-gray-100 h-full w-full flex flex-col max-w-lg mx-auto">
           <div className="bg-teal-600 p-4 text-white flex justify-between items-center">
-            <Link href="/training">
-            <button className="hover:bg-teal-400 rounded-md p-1">
-                Training
+            <Link href="/manage/training">
+              <button className="hover:bg-teal-400 rounded-md p-1">
+                  <UserCog2 />
               </button>
             </Link>
            
