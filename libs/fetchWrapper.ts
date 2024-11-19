@@ -1,16 +1,22 @@
-import axios from 'axios';
+import axios, { AxiosProgressEvent } from 'axios';
 import { baseUrl , API_TOKEN} from '../utils/config';
 
 const axiosInstance = axios.create({
     baseURL: baseUrl,
     headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${API_TOKEN}`,
     },
 });
 
 axiosInstance.interceptors.request.use(
     (config) => {
+        if (config.method === 'post') {
+            if (config.data instanceof FormData) {
+                config.headers['Content-Type'] = 'multipart/form-data';
+            } else {
+                config.headers['Content-Type'] = 'application/json';
+            }
+        }
         console.log('Request:', config);
         return config;
     },
@@ -43,14 +49,18 @@ const get = async (endpoint: string, query?: any) => {
     }
 };
 
-const post = async (endpoint: string, body: any) => {
+const post = async (endpoint: string, body: any,  onProgress?: (progressEvent: AxiosProgressEvent) => void) => {
     try {
-        const res = await axiosInstance.post(endpoint, body);
+        const res = await axiosInstance.post(endpoint, body,
+        {
+            onUploadProgress: onProgress,          
+        });
         return res.data;
     } catch (error: any) {
         return handleAxiosError(error);
     }
 };
+
 const del = async (endpoint: string, query?: any, data?: any) => {
     try {
       const res = await axiosInstance.delete(endpoint, {

@@ -26,7 +26,6 @@ const FileDataGrid = () => {
   }, []);
 
   const handleDelete = async (fileId: number) => {
-    // Display confirmation dialog to the user before deleting
     const confirmDelete = await Swal.fire({
       title: 'Are you sure?',
       text: 'You want to delete!',
@@ -41,7 +40,7 @@ const FileDataGrid = () => {
         const res = await trainingService.removeChatbotFile(fileId);
         if (res.status === 200) {
           Swal.fire('Deleted!', 'The file has been deleted successfully.', 'success');
-          setFileData([]);
+          fetchFileData();
         } else {
           Swal.fire('Error!', 'Something went wrong, please try again later.', 'error');
         }
@@ -49,7 +48,6 @@ const FileDataGrid = () => {
         Swal.fire('Error!', 'There was an issue with the request. Please try again later.', 'error');
       }
     } else {
-      // If the user cancels, show a message
       Swal.fire('Cancelled', 'The file was not deleted.', 'info');
     }
   };  

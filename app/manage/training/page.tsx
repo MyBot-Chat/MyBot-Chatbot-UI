@@ -1,13 +1,13 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FileType2, FolderCog, Globe2Icon, UploadIcon, UserCogIcon } from "lucide-react";
 import FileDataGrid from "@/components/FileDataGrid";
 import FileUploadComponent from "@/components/FileUploadComponent";
 import TabBar from "@/components/TabBar";
 
-const Training = () => {
-  const [activeTab, setActiveTab] = useState("file"); // State to manage the active tab
 
+const Training = () => {
+  const [activeTab, setActiveTab] = useState("file"); 
   return (
     <>
       <TabBar />

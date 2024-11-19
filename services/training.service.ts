@@ -23,11 +23,14 @@ import fetchWrapper from "../libs/fetchWrapper";
   }
 };
 
+
  const uploadChatbotFile = async (file: FormData) => {
   const chatbotId = CHATBOT_ID as string;
   try {
     const response = await fetchWrapper.post(`/api/Training/File/${chatbotId}`, file);
-    return response.data;
+    if(response){
+      return response;
+    }
   } catch (error) {
     console.error("Error uploading file:", error);
     return { error: "File upload failed" };
