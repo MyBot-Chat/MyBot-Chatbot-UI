@@ -37,6 +37,7 @@ import fetchWrapper from "../libs/fetchWrapper";
   }
 }
 
+
  const removeChatbotFile = async (id: number) => {
   try {
     const chatbotId = CHATBOT_ID as string;

@@ -13,6 +13,7 @@ axiosInstance.interceptors.request.use(
         if (config.method === 'post') {
             if (config.data instanceof FormData) {
                 config.headers['Content-Type'] = 'multipart/form-data';
+                
             } else {
                 config.headers['Content-Type'] = 'application/json';
             }

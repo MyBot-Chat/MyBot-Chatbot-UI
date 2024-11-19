@@ -10,8 +10,6 @@ const FileDataGrid = () => {
   const [fileData, setFileData] = useState<any[]>([]); // Array of files
   const [loading, setLoading] = useState<boolean>(true);
 
-
-
   const fetchFileData = async () => {
      setLoading(true);
      const data = await trainingService.getChatbotFile();
