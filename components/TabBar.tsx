@@ -10,6 +10,7 @@ const TabBar = () => {
   const router = useRouter();
   const pathname = usePathname();
 
+  
   const handleTabClick = (tabIndex: number, url: string, e: React.MouseEvent) => {
     e.preventDefault();
     setActiveTab(tabIndex);
