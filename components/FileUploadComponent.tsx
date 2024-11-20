@@ -16,7 +16,10 @@ const FileUploadComponent = () => {
     try {
       const response = await trainingService.uploadChatbotFile(formData); 
       if (response) {
-        Swal.fire("Upload Complete", "File has been uploaded successfully!", "success");
+        Swal.fire("Upload Complete", "File has been uploaded successfully!", "success")
+        .then(() => {
+        window.location.reload();
+      });
       } else {
         Swal.fire("Upload Error", response.error, "error");
       }
@@ -66,6 +69,7 @@ const FileUploadComponent = () => {
           id="dropzone-file"
           type="file"
           className="hidden"
+          accept=".pdf,.doc,.docx,.txt,.xlsx,.pptx"
           onChange={handleSelectFile}
         />
       </label>
