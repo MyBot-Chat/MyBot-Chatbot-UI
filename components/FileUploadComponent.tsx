@@ -19,6 +19,7 @@ const FileUploadComponent = () => {
         Swal.fire("Upload Complete", "File has been uploaded successfully!", "success")
         .then(() => {
         window.location.reload();
+
       });
       } else {
         Swal.fire("Upload Error", response.error, "error");
@@ -70,6 +71,7 @@ const FileUploadComponent = () => {
           type="file"
           className="hidden"
           accept=".pdf,.doc,.docx,.txt,.xlsx,.pptx"
+          
           onChange={handleSelectFile}
         />
       </label>
