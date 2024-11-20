@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { FileType2, FolderCog, Globe2Icon, UploadIcon, UserCogIcon } from "lucide-react";
+import { FileType2, FolderCog, Globe2Icon, MessageCircleQuestionIcon, UploadIcon, UserCogIcon } from "lucide-react";
 import FileDataGrid from "@/components/FileDataGrid";
 import FileUploadComponent from "@/components/FileUploadComponent";
 import TabBar from "@/components/TabBar";
@@ -26,11 +26,11 @@ const Training = () => {
           </li>
           <li>
             <button
-              className={`inline-flex items-center px-4 py-3 gap-2 w-full dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white ${activeTab === "text" ? "border-r-2 border-blue-700 text-blue-700" : "border-r-2 border-transparent"}`}
-              onClick={() => setActiveTab("text")}
+              className={`inline-flex items-center px-4 py-3 gap-2 w-full dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white ${activeTab === "qa" ? "border-r-2 border-blue-700 text-blue-700" : "border-r-2 border-transparent"}`}
+              onClick={() => setActiveTab("qa")}
             >
-              <FileType2 />
-              Text
+              <MessageCircleQuestionIcon />
+              Q&A
             </button>
           </li>
           <li>
@@ -52,9 +52,9 @@ const Training = () => {
               <FileDataGrid />
             </>
           )}
-          {activeTab === "text" && (
+          {activeTab === "qa" && (
             <div>
-              <h3>Text Content</h3>
+              <h3>Q&A</h3>
             </div>
           )}
           {activeTab === "website" && (
