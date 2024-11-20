@@ -7,7 +7,6 @@ interface ProgressBarProps {
 const ProgressBar: React.FC<ProgressBarProps> = ({ duration }) => {
   const [currentProgress, setCurrentProgress] = useState<number>(0);
 
-  
   useEffect(() => {
     const incrementTime = 100;
     const totalIncrements = duration / incrementTime;

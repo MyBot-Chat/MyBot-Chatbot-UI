@@ -6,6 +6,7 @@ import FileUploadComponent from "@/components/FileUploadComponent";
 import TabBar from "@/components/TabBar";
 
 
+
 const Training = () => {
   const [activeTab, setActiveTab] = useState("file"); 
   return (

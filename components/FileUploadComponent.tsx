@@ -7,6 +7,7 @@ const FileUploadComponent = () => {
   const allowedTypes = [".pdf", ".doc", ".docx", ".txt", ".xlsx", ".pptx"];
   const [startProgress, setStartProgress] = useState(false);
 
+  
   const handleFileUpload = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
