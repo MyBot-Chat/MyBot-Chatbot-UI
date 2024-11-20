@@ -265,3 +265,15 @@ The html code is available in `/public/training-jquery.html`, javascript lib is 
 
 After running the App and access the url `http://localhost:3000/training-jquery.html` the result should look like screenshot below:
 ![Chatbot UI Demo](/public/img/jquery-example.png)
+
+## Chatbot Management Dashboard
+Dashboad for managing Chatbot using API.
+Current Features:
+- [x] Training Chatbot with Files
+- [ ] Training Chatbot with Q&A 
+- [ ] Console Page for testing Chatbot
+- [ ] Training Chatbot with Websites
+- [ ] ChatLog: for viewing chat history
+- [ ] Lead: for viewing sale lead
+
+![Chatbot Management](/public/img/chatbot-management.png)
