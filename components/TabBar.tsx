@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { ChartNoAxesCombined, HistoryIcon, LogsIcon, SquareChevronRight, UserCogIcon } from 'lucide-react';
+import { BackpackIcon, ChartNoAxesCombined, CircleArrowLeft, HistoryIcon, LogsIcon, SquareChevronRight, UserCogIcon } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation'
+import Link from 'next/link';
 
 
 const TabBar = () => {
@@ -26,6 +27,11 @@ const TabBar = () => {
 
   return (
     <>
+        <Link href="/">
+            <button className=" rounded-md my-5 mx-5">
+              <CircleArrowLeft/>
+            </button>
+        </Link>
         <div className="border-b border-gray-200 dark:border-gray-700 my-5 mx-5">
         <h1 className="text-3xl font-bold text-center">MyChatBot</h1>
         <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
