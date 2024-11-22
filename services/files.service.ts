@@ -54,13 +54,13 @@ import fetchWrapper from "../libs/fetchWrapper";
   }
 };
 
-export const trainingService = {
+export const filesService = {
   getChatbotFile,
   uploadChatbotFile,
   removeChatbotFile,
 };
 
-export default trainingService;
+export default filesService;
 
 
 

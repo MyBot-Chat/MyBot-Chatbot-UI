@@ -1,7 +1,7 @@
 import { useState, ChangeEvent } from "react";
 import Swal from "sweetalert2";
 import { UploadIcon } from "lucide-react";
-import { trainingService } from "@/services/training.service";
+import { filesService } from "@/services/files.service";
 import ProgressBar from "@/components/ProgressBar";
 const FileUploadComponent = () => {
   const allowedTypes = [".pdf", ".doc", ".docx", ".txt", ".xlsx", ".pptx"];
@@ -14,7 +14,7 @@ const FileUploadComponent = () => {
     setStartProgress(true)
 
     try {
-      const response = await trainingService.uploadChatbotFile(formData); 
+      const response = await filesService.uploadChatbotFile(formData); 
       if (response) {
         Swal.fire("Upload Complete", "File has been uploaded successfully!", "success")
         .then(() => {

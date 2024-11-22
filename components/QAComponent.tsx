@@ -1,18 +1,29 @@
-import { Eye, TrashIcon, } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
+import {  TrashIcon } from "lucide-react";
+import faqService from "@/services/faq.service";
+import { ChatbotQandAModel, QAInputModelDto } from "@/utils/dtos/DataDto";
 
-interface ChatbotQandAModel {
-  Id: number;
-  Question: string;
-  Answer: string;
-  IsTrained: boolean;
-  ContentLength: number;
-}
+
 
 const QAComponent: React.FC = () => {
   const [chatbotQandAlist, setChatbotQandAlist] = useState<ChatbotQandAModel[]>([]);
   const [totalQAChar, setTotalQAChar] = useState(0);
+
+
+  const fetchChatbotQA = async () => {
+    const result = await faqService.getChatbotQA();
+    console.log("DAta", result);
+    if (result.success) {
+      setChatbotQandAlist(result.QAData);
+    } else {
+      console.error(result.error || "Failed to fetch chatbot Q&A data");
+    }
+  };
+
+  useEffect(() => {
+    fetchChatbotQA();
+  }, []);
 
   const AddFAQForm = async () => {
     const { value: formValues } = await Swal.fire({
@@ -34,59 +45,35 @@ const QAComponent: React.FC = () => {
         if (!question || !answer) {
           Swal.showValidationMessage("Both Question and Answer are required!");
         }
-
         return { question, answer };
       },
     });
 
     if (formValues) {
-      const newFAQ: ChatbotQandAModel = {
-        Id: chatbotQandAlist.length + 1,
+      const newFAQ : QAInputModelDto = {
         Question: formValues.question,
         Answer: formValues.answer,
-        IsTrained: false,
-        ContentLength: formValues.question.length + formValues.answer.length,
       };
 
-      setChatbotQandAlist((prev) => [...prev, newFAQ]);
-    
-      console.log("Q", newFAQ);
-
-      Swal.fire({
-        icon: "success",
-        title: "FAQ Added",
-        text: "Your FAQ has been added successfully.",
-        timer: 2000,
-      });
+      const result = await faqService.uploadChatbotQA(newFAQ);
+      if (result) {
+        setChatbotQandAlist((prev) => [...prev, result]);
+        Swal.fire({
+          icon: "success",
+          title: "FAQ Added",
+          text: "Your FAQ has been added successfully.",
+          timer: 2000,
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to upload FAQ. Please try again later.",
+        });
+      }
     }
   };
 
-  const OnViewDetail = (Id: number) => {
-    const selectedQA = chatbotQandAlist.find((item) => item.Id === Id);
-  
-    if (selectedQA) {
-      Swal.fire({
-        title: `<strong>Q&A Details</strong>`,
-        html: `
-          <div class="text-left gap-5">
-            <p><strong>Question:</strong> ${selectedQA.Question}</p>
-            <p><strong>Answer:</strong> ${selectedQA.Answer}</p>
-            <p><strong>Trained:</strong> ${selectedQA.IsTrained ? "Yes" : "No"}</p>
-            <p><strong>Content Length:</strong> ${selectedQA.ContentLength}</p>
-          </div>
-        `,
-        confirmButtonText: "Close",
-        focusConfirm: false,
-      });
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Unable to find the selected Q&A.",
-      });
-    }
-  };
-  
   const handleDelete = async (Id: number) => {
     const confirmDelete = await Swal.fire({
       title: 'Are you sure?',
@@ -96,20 +83,20 @@ const QAComponent: React.FC = () => {
       confirmButtonText: 'Yes, delete it!',
       cancelButtonText: 'Cancel',
     });
-  
+
     if (confirmDelete.isConfirmed) {
-        try {
-          setChatbotQandAlist((prevList) => prevList.filter((item) => item.Id !== Id));
-          Swal.fire('Deleted!', 'The Q&A has been deleted successfully.', 'success');
-        } catch (error) {
-          Swal.fire('Error!', 'Something went wrong, please try again later.', 'error');
-        }
-      }      
+      const result = await faqService.removeChatbotQA(Id);
+      if (result.status === 200) {
+        Swal.fire('Deleted!', 'The Q&A has been deleted successfully.', 'success');
+        await fetchChatbotQA();
+      } else {
+        Swal.fire('Error!', 'Something went wrong, please try again later.', 'error');
+      }
+    }
   };
-  
 
   useEffect(() => {
-    const total = chatbotQandAlist.reduce((sum, item) => sum + item.ContentLength, 0);
+    const total = chatbotQandAlist.reduce((sum, item) => sum + item.contentLenght, 0);
     setTotalQAChar(total);
   }, [chatbotQandAlist]);
 
@@ -132,56 +119,36 @@ const QAComponent: React.FC = () => {
         <table className="min-w-full divide-y divide-gray-200 bg-white shadow rounded-lg">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
-                Q & A
-              </th>
-              <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 tracking-wider">
-                Trained
-              </th>
-              <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 tracking-wider">
-                Length
-              </th>
-              <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 tracking-wider">
-                Actions
-              </th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">Q & A</th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">Content Lenght</th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">Trained</th>
+              <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {chatbotQandAlist.map((data) => (
-              <tr
-                key={data.Id}
-                className="hover:bg-gray-100 cursor-pointer"
-              >
-                <td className="px-6 py-4 text-sm text-gray-900">
-                  <p className="font-semibold">
-                    <strong>Q:</strong> {data.Question}
-                  </p>
-                  <p>
-                    <strong>A:</strong> {data.Answer}
-                  </p>
+            {chatbotQandAlist.map((faq, index) => (
+              <tr key={index}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <p className="font-semibold">{faq.question}</p>
+                  <p className="text-gray-600">{faq.answer}</p>
                 </td>
-                <td className="px-6 py-4 text-center">
-                  {data.IsTrained ? (
-                    <span className="text-green-500 font-semibold">✓</span>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <p className="font-semibold">{faq.contentLenght}</p>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  {faq.isTrained ? (
+                    <input type="checkbox" defaultChecked className="checkbox checkbox-accent checkbox-md" />
                   ) : (
-                    <span className="text-red-500 font-semibold">✗</span>
+                    <input type="checkbox" className="checkbox checkbox-accent checkbox-md" />
                   )}
                 </td>
-                <td className="px-6 py-4 text-center text-sm text-gray-500">
-                  {data.ContentLength}
-                </td>
-                <td className="px-6 py-4 text-center">
-                <button
-                    className="bg-gray-100 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 mr-2"
-                    onClick={() => OnViewDetail(data.Id)}
-                  >
-                    <Eye/>
-                  </button>
+                
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
                   <button
-                    className="bg-gray-100 text-red-600 px-2 py-1 rounded hover:bg-red-100"
-                    onClick={() => handleDelete(data.Id)}
+                    onClick={() => handleDelete(faq.id)}
+                    className="text-red-600 hover:text-red-800"
                   >
-                    <TrashIcon />
+                    <TrashIcon className="w-5 h-5" />
                   </button>
                 </td>
               </tr>

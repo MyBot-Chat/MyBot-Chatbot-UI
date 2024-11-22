@@ -1,6 +1,6 @@
 "use client";
 
-import  { trainingService } from "@/services/training.service";
+import  { filesService } from "@/services/files.service";
 import formatDate from "@/utils/formatDate";
 import { TrashIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
@@ -13,7 +13,7 @@ const FileDataGrid = () => {
   
   const fetchFileData = async () => {
      setLoading(true);
-     const data = await trainingService.getChatbotFile();
+     const data = await filesService.getChatbotFile();
      if (data && data.success) {
       setFileData(data.filesData);
       }
@@ -36,10 +36,10 @@ const FileDataGrid = () => {
   
     if (confirmDelete.isConfirmed) {
       try {
-        const res = await trainingService.removeChatbotFile(fileId);
+        const res = await filesService.removeChatbotFile(fileId);
         if (res.status === 200) {
           Swal.fire('Deleted!', 'The file has been deleted successfully.', 'success');
-          fetchFileData();
+          await fetchFileData();
         } else {
           Swal.fire('Error!', 'Something went wrong, please try again later.', 'error');
         }
@@ -86,7 +86,7 @@ const FileDataGrid = () => {
                 {file.isTrained ? (
                     <input type="checkbox" defaultChecked className="checkbox checkbox-accent checkbox-md" />
                   ) : (
-                    <input type="checkbox" className="checkbox checkbox-accent checkbox-lg" />
+                    <input type="checkbox" className="checkbox checkbox-accent checkbox-md" />
                 )}
                 </td>
                 <td className="px-4 py-2 border-b">{file.createdDate ? formatDate(file.createdDate) : 'N/A'}</td>
