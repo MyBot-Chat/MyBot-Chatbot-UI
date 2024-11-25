@@ -1,9 +1,9 @@
 'use client'
 import { useState } from "react";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
-const chatbotId = "7e595d04-bc46-4fe6-99d6-340b82ab2c1e";
-const apiKey = "d085fea1-61c2-4e76-a817-a46d7d9f040b";
-const serverBaseURL = "http://localhost:5244/api/Training/StartTraining/" + chatbotId;
+import { API_TOKEN, baseUrl, CHATBOT_ID } from "@/utils/config";
+
+const serverBaseURL = `${baseUrl}/api/Training/StartTraining/` + CHATBOT_ID;
 
 const Training = () => {
   const [data, setData] = useState("");
@@ -21,7 +21,7 @@ const Training = () => {
       method: "GET",
       headers: {
         Accept: "text/event-stream",
-        Authorization: "Bearer "+apiKey
+        Authorization: "Bearer "+API_TOKEN
       },
       async onopen(res) {
         if (res.ok && res.status === 200) {

@@ -5,13 +5,8 @@ import { Bot, Send, User, UserCog2, RefreshCcw } from "lucide-react";
 import { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from "react";
 import { Toaster, toast } from "sonner";
 import Link from "next/link";
+import { Message } from "@/utils/dtos/DataDto";
 
-type Message = {
-  messageId: number;
-  username: "Bot" | "Default User";
-  content: string;
-  imageUrl?: string;
-};
 
 const Chatbot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
