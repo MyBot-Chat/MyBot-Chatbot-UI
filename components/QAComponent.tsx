@@ -1,29 +1,36 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import {  TrashIcon } from "lucide-react";
+import { TrashIcon } from "lucide-react";
 import faqService from "@/services/faq.service";
 import { ChatbotQandAModel, QAInputModelDto } from "@/utils/dtos/DataDto";
-
-
 
 const QAComponent: React.FC = () => {
   const [chatbotQandAlist, setChatbotQandAlist] = useState<ChatbotQandAModel[]>([]);
   const [totalQAChar, setTotalQAChar] = useState(0);
 
-
   const fetchChatbotQA = async () => {
-    const result = await faqService.getChatbotQA();
-    console.log("DAta", result);
-    if (result.success) {
-      setChatbotQandAlist(result.QAData);
-    } else {
-      console.error(result.error || "Failed to fetch chatbot Q&A data");
+    try {
+      const result = await faqService.getChatbotQA();
+      if (result.success) {
+        setChatbotQandAlist(Array.isArray(result.QAData) ? result.QAData : []);
+      } else {
+        setChatbotQandAlist([]);
+      }
+    } catch (error) {
+      setChatbotQandAlist([]); 
     }
   };
 
   useEffect(() => {
     fetchChatbotQA();
   }, []);
+
+  useEffect(() => {
+    if (chatbotQandAlist.length > 0) {
+      const total = chatbotQandAlist.reduce((sum, item) => sum + (item.contentLenght || 0), 0);
+      setTotalQAChar(total);
+    }
+  }, [chatbotQandAlist]);
 
   const AddFAQForm = async () => {
     const { value: formValues } = await Swal.fire({
@@ -50,21 +57,25 @@ const QAComponent: React.FC = () => {
     });
 
     if (formValues) {
-      const newFAQ : QAInputModelDto = {
+      const newFAQ: QAInputModelDto = {
         Question: formValues.question,
         Answer: formValues.answer,
       };
 
-      const result = await faqService.uploadChatbotQA(newFAQ);
-      if (result) {
-        setChatbotQandAlist((prev) => [...prev, result]);
-        Swal.fire({
-          icon: "success",
-          title: "FAQ Added",
-          text: "Your FAQ has been added successfully.",
-          timer: 2000,
-        });
-      } else {
+      try {
+        const result = await faqService.uploadChatbotQA(newFAQ);
+        if (result) {
+          setChatbotQandAlist((prev) => [...prev, result]);
+          Swal.fire({
+            icon: "success",
+            title: "FAQ Added",
+            text: "Your FAQ has been added successfully.",
+            timer: 2000,
+          });
+        } else {
+          throw new Error("Upload failed");
+        }
+      } catch (error) {
         Swal.fire({
           icon: "error",
           title: "Error",
@@ -76,29 +87,28 @@ const QAComponent: React.FC = () => {
 
   const handleDelete = async (Id: number) => {
     const confirmDelete = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'You want to delete!',
-      icon: 'warning',
+      title: "Are you sure?",
+      text: "You want to delete!",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel',
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
     });
 
     if (confirmDelete.isConfirmed) {
-      const result = await faqService.removeChatbotQA(Id);
-      if (result.status === 200) {
-        Swal.fire('Deleted!', 'The Q&A has been deleted successfully.', 'success');
-        await fetchChatbotQA();
-      } else {
-        Swal.fire('Error!', 'Something went wrong, please try again later.', 'error');
+      try {
+        const result = await faqService.removeChatbotQA(Id);
+        if (result.status === 200) {
+          Swal.fire("Deleted!", "The Q&A has been deleted successfully.", "success");
+          await fetchChatbotQA();
+        } else {
+          throw new Error("Delete failed");
+        }
+      } catch (error) {
+        Swal.fire("Error!", "Something went wrong, please try again later.", "error");
       }
     }
   };
-
-  useEffect(() => {
-    const total = chatbotQandAlist.reduce((sum, item) => sum + item.contentLenght, 0);
-    setTotalQAChar(total);
-  }, [chatbotQandAlist]);
 
   return (
     <div className="mx-auto p-4 bg-white shadow-lg rounded-md">
@@ -120,39 +130,48 @@ const QAComponent: React.FC = () => {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">Q & A</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">Content Lenght</th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
+                Content Length
+              </th>
               <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">Trained</th>
               <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {chatbotQandAlist.map((faq, index) => (
-              <tr key={index}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  <p className="font-semibold">{faq.question}</p>
-                  <p className="text-gray-600">{faq.answer}</p>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  <p className="font-semibold">{faq.contentLenght}</p>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {faq.isTrained ? (
-                    <input type="checkbox" defaultChecked className="checkbox checkbox-accent checkbox-md" />
-                  ) : (
-                    <input type="checkbox" className="checkbox checkbox-accent checkbox-md" />
-                  )}
-                </td>
-                
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
-                  <button
-                    onClick={() => handleDelete(faq.id)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
+            {Array.isArray(chatbotQandAlist) && chatbotQandAlist.length > 0 ? (
+              chatbotQandAlist.map((faq, index) => (
+                <tr key={index}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <p className="font-semibold">{faq.question}</p>
+                    <p className="text-gray-600">{faq.answer}</p>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <p className="font-semibold">{faq.contentLenght}</p>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-accent checkbox-md"
+                      defaultChecked={faq.isTrained}
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+                    <button
+                      onClick={() => handleDelete(faq.id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={4} className="px-6 py-4 text-center text-sm font-medium text-gray-500">
+                  No data available.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

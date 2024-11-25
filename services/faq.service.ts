@@ -20,8 +20,8 @@ import { QAInputModelDto } from "@/utils/dtos/DataDto";
         }
     }
   } catch (error) {
-    console.error("Error fetching chatbot file data:", error);
-    return { error: "Failed to retrieve chatbot file data" };
+    console.error("Error fetching chatbot QA data:", error);
+    return { error: "Failed to retrieve chatbot QA data" };
   }
 };
 
