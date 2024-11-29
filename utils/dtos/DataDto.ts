@@ -16,6 +16,11 @@ export interface ChatbotQandAModel {
     CreatedDate?: string;
     ModifiedDate?: string;
   }
+
+  export interface QAInputDto {
+    Question: string;
+    Answer: string;
+  }
   
   export type Message = {
     messageId: number;
@@ -23,3 +28,21 @@ export interface ChatbotQandAModel {
     content: string;
     imageUrl?: string;
   };
+
+  export type ChatbotWebsite = {
+    id: number;
+    chatbotId?: string;
+    userId: string;
+    url: string;
+    content: string;
+    contentLength: number;
+    istrained: boolean;
+    docId: string;
+    createdDate: Date;  
+    modifiedDate: Date;
+};
+
+export interface ChatbotWebRequestDeleteDto {
+  idList: number[];  
+  listwebsite: ChatbotWebsite[];  
+}

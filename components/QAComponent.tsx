@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { TrashIcon } from "lucide-react";
+import { EditIcon, TrashIcon } from "lucide-react";
 import faqService from "@/services/faq.service";
 import { ChatbotQandAModel, QAInputModelDto } from "@/utils/dtos/DataDto";
 
@@ -85,6 +85,56 @@ const QAComponent: React.FC = () => {
     }
   };
 
+  const handleEdit = async (faq: ChatbotQandAModel) => {
+    const { value: formValues } = await Swal.fire({
+      title: "Edit FAQ",
+      html: `
+        <div class="flex flex-col space-y-4">
+          <input id="swal-input1" class="swal2-input" value="${faq.question}" placeholder="Enter Question" />
+          <textarea id="swal-input2" class="swal2-textarea" placeholder="Enter Answer">${faq.answer}</textarea>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: "Update",
+      cancelButtonText: "Cancel",
+      preConfirm: () => {
+        const question = (document.getElementById("swal-input1") as HTMLInputElement).value;
+        const answer = (document.getElementById("swal-input2") as HTMLTextAreaElement).value;
+  
+        if (!question || !answer) {
+          Swal.showValidationMessage("Both Question and Answer are required!");
+        }
+        return { question, answer };
+      },
+    });
+  
+    if (formValues) {
+      const updatedFAQ: QAInputModelDto = {
+        Question: formValues.question,
+        Answer: formValues.answer,
+      };
+  
+      try {
+        const result = await faqService.updateQA(faq.id, updatedFAQ);
+        if (result) {
+          Swal.fire({
+            icon: "success",
+            title: "FAQ Updated",
+            text: "Your FAQ has been updated successfully.",
+            timer: 2000,
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to update FAQ. Please try again later.",
+        });
+      }
+    }
+  };
+  
   const handleDelete = async (Id: number) => {
     const confirmDelete = await Swal.fire({
       title: "Are you sure?",
@@ -151,18 +201,26 @@ const QAComponent: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <input
                       type="checkbox"
+                      disabled
                       className="checkbox checkbox-accent checkbox-md"
                       defaultChecked={faq.isTrained}
                     />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center gap-3">
                     <button
                       onClick={() => handleDelete(faq.id)}
                       className="text-red-600 hover:text-red-800"
                     >
                       <TrashIcon className="w-5 h-5" />
                     </button>
+                    <button
+                      onClick={() => handleEdit(faq)}
+                      className="text-blue-500"
+                    >
+                      <EditIcon className="w-5 h-5" />
+                    </button>
                   </td>
+
                 </tr>
               ))
             ) : (
