@@ -63,11 +63,26 @@ const post = async (endpoint: string, body: any,  onProgress?: (progressEvent: A
     }
 };
 
-const del = async (endpoint: string, query?: any, data?: any) => {
+const update = async (endpoint: string, body: any) => {
+    try {
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+        const res = await axiosInstance.put(endpoint, body, { headers });
+        return {
+            status: res.status,
+            data: res.data,
+        };
+    } catch (error: any) {
+        console.error("Error:", error);
+        return handleAxiosError(error);
+    }
+};
+const del = async (endpoint: string, query?: any, reqData?: any) => {
     try {
       const res = await axiosInstance.delete(endpoint, {
         params: query,
-        data: data,  
+        data: reqData, 
       });
       if (res.status === 200) {
         return { status: res.status, data: res.data };
@@ -84,4 +99,4 @@ const handleAxiosError = (error: any) => {
 };
 
 
-export default { get, post, del };
+export default { get, post, update, del };

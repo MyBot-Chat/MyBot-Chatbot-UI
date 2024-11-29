@@ -6,6 +6,7 @@ import FileDataGrid from "@/components/FileDataGrid";
 import FileUploadComponent from "@/components/FileUploadComponent";
 import TabBar from "@/components/TabBar";
 import QAComponent from "@/components/QAComponent";
+import Website from "@/components/Website";
 
 type Tab = "file" | "qa" | "website";
 
@@ -96,7 +97,7 @@ const Training: React.FC = () => {
           )}
           {activeTab === "website" && (
             <div>
-              <h3>Website Content</h3>
+              <Website />
             </div>
           )}
         </div>
