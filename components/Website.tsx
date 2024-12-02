@@ -188,11 +188,12 @@ const CrawlerPage: React.FC = () => {
           setTotalContentLength(totalLength);
           const calculatedTotalPages = Math.ceil(total / itemsPerPage);
           setTotalPages(calculatedTotalPages);
+
         } else {
           console.error("Expected data to be an array, got:", data);
         }
       } else {
-        console.error("Invalid API response:", response);
+        console.log(response);
       }
     } catch (error) {
       console.error("Error during loading:", error);
@@ -209,12 +210,12 @@ const CrawlerPage: React.FC = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = Array.isArray(chatbotWebsites)
-  ? chatbotWebsites.slice(indexOfFirstItem, indexOfLastItem)
-  : [];
+  const currentItems = chatbotWebsites.slice(indexOfFirstItem, indexOfLastItem);
 
-  const handlePageChange = (pageNumber: number) => setCurrentPage(pageNumber);
- 
+  const handlePageChange = async (pageNumber: number) =>  {
+   setCurrentPage(pageNumber);
+  } 
+
   return (
     <div className="container mx-auto mt-5">
       <div className="bg-white shadow rounded-lg p-5">
@@ -352,9 +353,9 @@ const CrawlerPage: React.FC = () => {
                         <td>{site.contentLength}</td>
                         <td>
                           {site.istrained ? (
-                            <input type="checkbox" readOnly defaultChecked  className="checkbox checkbox-accent checkbox-md" />
+                            <input type="checkbox" readOnly defaultChecked  className=" checkbox-accent checkbox-md checkbox pointer-events-none" />
                           ) : (
-                            <input type="checkbox" readOnly className="checkbox checkbox-accent checkbox-md" />
+                            <input type="checkbox" readOnly className=" checkbox-accent checkbox-md checkbox pointer-events-none" />
                           )}
                         </td>
                         <td>
@@ -376,6 +377,7 @@ const CrawlerPage: React.FC = () => {
               </div>
                {/* Buttons for Pagination */}
                <div className="join mt-5">
+                
                   {[...Array(totalPages)].map((_, idx) => (
                     <button
                       key={idx}
@@ -386,6 +388,11 @@ const CrawlerPage: React.FC = () => {
                     </button>
                   ))}
               </div>
+          </div>
+        )}
+        {chatbotWebsites.length === 0 && (
+          <div className="text-center">
+            No data
           </div>
         )}
         <p className="mt-5 text-gray-600">

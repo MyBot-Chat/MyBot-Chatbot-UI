@@ -7,7 +7,6 @@ const gatAllWebsitelink = async () => {
   try {
     const chatbotId = CHATBOT_ID as string;
     const response = await fetchWrapper.get(`/api/Training/Website`, chatbotId);
-    console.log("data", response);
     if (response.total > 0) {
       return {
         success: true,
@@ -34,7 +33,7 @@ const fetchSitemap = async (sitemapUrl: string, onStreamUpdate: (message: string
       Authorization: `Bearer ${API_TOKEN}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(sitemapUrl),
+    body: JSON.stringify({ SitemapUrl: sitemapUrl }),
     async onopen(res) {
       if (res.ok && res.status === 200) {
         onStreamUpdate("Connection Open... ");
@@ -66,11 +65,7 @@ const fetchSitemap = async (sitemapUrl: string, onStreamUpdate: (message: string
   });
 };
 
-const fetchCrawl = async (
-  linkUrl: string,
-  crawlAllink: boolean,
-  onStreamUpdate: (message: string) => void
-) => {
+const fetchCrawl = async (linkUrl: string, crawlAllink: boolean, onStreamUpdate: (message: string) => void) => {
   const serverBaseURL = `${baseUrl}/api/Training/Website/Link/${CHATBOT_ID}`;
   const requestBody = JSON.stringify({
     linkUrl: linkUrl,

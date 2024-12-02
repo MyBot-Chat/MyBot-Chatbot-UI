@@ -46,3 +46,8 @@ export interface ChatbotWebRequestDeleteDto {
   idList: number[];  
   listwebsite: ChatbotWebsite[];  
 }
+
+export interface SitemapCrawlRequestDto {
+  SitemapUrl : string;  
+}
+

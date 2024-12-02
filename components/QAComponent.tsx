@@ -199,12 +199,7 @@ const QAComponent: React.FC = () => {
                     <p className="font-semibold">{faq.contentLenght}</p>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <input
-                      type="checkbox"
-                      readOnly
-                      className="checkbox checkbox-accent checkbox-md"
-                      defaultChecked={faq.isTrained}
-                    />
+                    <input type="checkbox" defaultChecked={faq.isTrained} className="checkbox checkbox-accent checkbox-md pointer-events-none" readOnly />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center gap-3">
                     <button
