@@ -6,8 +6,9 @@ import { fetchEventSource } from "@microsoft/fetch-event-source";
 const gatAllWebsitelink = async () => {
   try {
     const chatbotId = CHATBOT_ID as string;
-    const response = await fetchWrapper.get(`/api/Training/Web`, chatbotId);
-    if (response.length > 0) {
+    const response = await fetchWrapper.get(`/api/Training/Website`, chatbotId);
+    console.log("data", response);
+    if (response.total > 0) {
       return {
         success: true,
         Data: response,
@@ -25,7 +26,7 @@ const gatAllWebsitelink = async () => {
 };
 
 const fetchSitemap = async (sitemapUrl: string, onStreamUpdate: (message: string) => void) => {
-  const serverBaseURL = `${baseUrl}/api/Training/Website/${CHATBOT_ID}`;
+  const serverBaseURL = `${baseUrl}/api/Training/Website/Sitemap/${CHATBOT_ID}`;
   await fetchEventSource(serverBaseURL, {
     method: "POST",
     headers: {
@@ -70,7 +71,7 @@ const fetchCrawl = async (
   crawlAllink: boolean,
   onStreamUpdate: (message: string) => void
 ) => {
-  const serverBaseURL = `${baseUrl}/api/Training/Website/${CHATBOT_ID}`;
+  const serverBaseURL = `${baseUrl}/api/Training/Website/Link/${CHATBOT_ID}`;
   const requestBody = JSON.stringify({
     linkUrl: linkUrl,
     crawlAllOrSingle: crawlAllink,

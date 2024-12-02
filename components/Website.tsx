@@ -17,8 +17,8 @@ const CrawlerPage: React.FC = () => {
   const [totalContentLength, setTotalContentLength] = useState<number>(0);
   const [logMessages, setLogMessages] = useState<string>();
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
   const itemsPerPage = 10;
-
   const onStreamUpdate = (message: string) => {
     setLogMessages(message);
   };
@@ -176,16 +176,31 @@ const CrawlerPage: React.FC = () => {
     try {
       const response = await webService.gatAllWebsitelink();
       if (response.success) {
-        setChatbotWebsites(response.Data);
-        const totalLength = response.Data.reduce((sum: number, site: ChatbotWebsite) => sum + site.contentLength, 0);
-        setTotalContentLength(totalLength);
-      } 
+        const data = response.Data?.data;
+        const total = response.Data?.total;
+        if (Array.isArray(data)) {
+          setChatbotWebsites(data);
+  
+          const totalLength = data.reduce(
+            (sum: number, site: ChatbotWebsite) => sum + (site.contentLength || 0), // Ensure `contentLength` exists
+            0
+          );
+          setTotalContentLength(totalLength);
+          const calculatedTotalPages = Math.ceil(total / itemsPerPage);
+          setTotalPages(calculatedTotalPages);
+        } else {
+          console.error("Expected data to be an array, got:", data);
+        }
+      } else {
+        console.error("Invalid API response:", response);
+      }
     } catch (error) {
-      console.error("Error during  loading:", error);
+      console.error("Error during loading:", error);
     } finally {
       setIsLoading(false);
     }
   };
+  
   
   useEffect(() => {
     loadData();
@@ -194,8 +209,9 @@ const CrawlerPage: React.FC = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = chatbotWebsites.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(chatbotWebsites.length / itemsPerPage);
+  const currentItems = Array.isArray(chatbotWebsites)
+  ? chatbotWebsites.slice(indexOfFirstItem, indexOfLastItem)
+  : [];
 
   const handlePageChange = (pageNumber: number) => setCurrentPage(pageNumber);
  
@@ -318,7 +334,7 @@ const CrawlerPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {currentItems.map((site,index) => (
+                    {Array.isArray(currentItems) && currentItems.map((site, index) => (
                       <tr key={index}>
                         <td>
                           <input
@@ -346,11 +362,12 @@ const CrawlerPage: React.FC = () => {
                             className="text-blue-500"
                             onClick={() => handleUpdateContent(site.id, site.content)}
                           >
-                           <EditIcon />
+                            <EditIcon />
                           </button>
                         </td>
                       </tr>
                     ))}
+
                   </tbody>
                 </table>
                 <div className="text-center">
