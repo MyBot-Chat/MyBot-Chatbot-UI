@@ -201,7 +201,7 @@ const QAComponent: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <input
                       type="checkbox"
-                      disabled
+                      readOnly
                       className="checkbox checkbox-accent checkbox-md"
                       defaultChecked={faq.isTrained}
                     />

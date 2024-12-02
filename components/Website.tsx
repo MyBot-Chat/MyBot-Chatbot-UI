@@ -352,9 +352,9 @@ const CrawlerPage: React.FC = () => {
                         <td>{site.contentLength}</td>
                         <td>
                           {site.istrained ? (
-                            <input type="checkbox" defaultChecked disabled className="checkbox checkbox-accent checkbox-md" />
+                            <input type="checkbox" readOnly defaultChecked  className="checkbox checkbox-accent checkbox-md" />
                           ) : (
-                            <input type="checkbox" disabled className="checkbox checkbox-accent checkbox-md" />
+                            <input type="checkbox" readOnly className="checkbox checkbox-accent checkbox-md" />
                           )}
                         </td>
                         <td>
