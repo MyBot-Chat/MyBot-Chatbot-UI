@@ -18,7 +18,6 @@ const CrawlerPage: React.FC = () => {
   const [totalContentLength, setTotalContentLength] = useState<number>(0);
   const [logMessages, setLogMessages] = useState<string>();
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
   const itemsPerPage = 10;
   const onStreamUpdate = (message: string) => {
     setLogMessages(message);
@@ -110,6 +109,7 @@ const CrawlerPage: React.FC = () => {
       Swal.fire('Missing', 'Please select items to delete.', 'info');
       return;
     }
+
     const confirmDelete = await Swal.fire({
       title: 'Are you sure?',
       text: 'You want to delete!',
@@ -118,23 +118,39 @@ const CrawlerPage: React.FC = () => {
       confirmButtonText: 'Yes, delete it!',
       cancelButtonText: 'Cancel',
     });
-  
+
     if (confirmDelete.isConfirmed) {
-      try {
-        const res = await webService.removeWebLink(selectedIds,selectedData);
+    try {
+      Swal.fire({
+        title: 'Deleting...',
+        text: 'Please wait while we process your request.',
+        icon: 'info',
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+        const res = await webService.removeWebLink(selectedIds, selectedData);
+
+        Swal.close();
+
         if (res.status === 200) {
           Swal.fire('Deleted!', 'The link has been deleted successfully.', 'success');
-          await loadData();
+          window.location.reload();
         } else {
           Swal.fire('Error!', 'Something went wrong, please try again later.', 'error');
         }
       } catch (error) {
+        Swal.close();
         Swal.fire('Error!', 'There was an issue with the request. Please try again later.', 'error');
       }
     } else {
       Swal.fire('Cancelled', 'The link was not deleted.', 'info');
     }
-  };  
+  };
+ 
 
   const handleCrawlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -178,7 +194,6 @@ const CrawlerPage: React.FC = () => {
       const response = await webService.gatAllWebsitelink();
       if (response.success) {
         const data = response.Data?.data;
-        const total = response.Data?.total;
         if (Array.isArray(data)) {
           setChatbotWebsites(data);
   
@@ -187,8 +202,6 @@ const CrawlerPage: React.FC = () => {
             0
           );
           setTotalContentLength(totalLength);
-          setTotalPages(total);
-
         } else {
           console.error("Expected data to be an array, got:", data);
         }
@@ -335,7 +348,7 @@ const CrawlerPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {Array.isArray(currentItems) && currentItems.map((site, index) => (
+                    {currentItems.map((site, index) => (
                       <tr key={index}>
                         <td>
                           <input
@@ -353,10 +366,20 @@ const CrawlerPage: React.FC = () => {
                         <td>{site.contentLength}</td>
                         <td>
                           {site.istrained ? (
-                            <input type="checkbox" readOnly defaultChecked  className=" checkbox-accent checkbox-md checkbox pointer-events-none" />
-                          ) : (
-                            <input type="checkbox" readOnly className=" checkbox-accent checkbox-md checkbox pointer-events-none" />
-                          )}
+                          <input 
+                            type="checkbox" 
+                            readOnly 
+                            checked={site.istrained} 
+                            className="checkbox-accent checkbox-md checkbox pointer-events-none" 
+                          />
+                        ) : (
+                          <input 
+                            type="checkbox" 
+                            readOnly 
+                            checked={site.istrained} 
+                            className="checkbox-accent checkbox-md checkbox pointer-events-none" 
+                          />
+                        )}
                         </td>
                         <td>
                           <button
@@ -378,7 +401,7 @@ const CrawlerPage: React.FC = () => {
                {/* Pagination */}
                <div className="join mt-5">
                    <Pagination
-                      totalItems={totalPages}
+                      totalItems={chatbotWebsites.length}
                       itemsPerPage={itemsPerPage}
                       currentPage={currentPage}
                       onPageChange={handlePageChange}
