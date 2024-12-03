@@ -270,9 +270,9 @@ After running the App and access the url `http://localhost:3000/training-jquery.
 Dashboad for managing Chatbot using API.
 Current Features:
 - [x] Training Chatbot with Files
-- [ ] Training Chatbot with Q&A 
-- [ ] Console Page for testing Chatbot
-- [ ] Training Chatbot with Websites
+- [x] Training Chatbot with Q&A 
+- [x] Console Page for testing Chatbot
+- [x] Training Chatbot with Websites
 - [ ] ChatLog: for viewing chat history
 - [ ] Lead: for viewing sale lead
 
