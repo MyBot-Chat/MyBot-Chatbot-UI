@@ -3,6 +3,7 @@ import { ChatbotWebsite } from "@/utils/dtos/DataDto";
 import { webService } from "@/services/web.service";
 import Swal from "sweetalert2";
 import { EditIcon } from "lucide-react";
+import Pagination from "./Pagination";
 
 const CrawlerPage: React.FC = () => {
   const [urlcrawl, setUrlcrawl] = useState<string>("");
@@ -182,17 +183,17 @@ const CrawlerPage: React.FC = () => {
           setChatbotWebsites(data);
   
           const totalLength = data.reduce(
-            (sum: number, site: ChatbotWebsite) => sum + (site.contentLength || 0), // Ensure `contentLength` exists
+            (sum: number, site: ChatbotWebsite) => sum + (site.contentLength || 0),
             0
           );
           setTotalContentLength(totalLength);
-          const calculatedTotalPages = Math.ceil(total / itemsPerPage);
-          setTotalPages(calculatedTotalPages);
+          setTotalPages(total);
+
         } else {
           console.error("Expected data to be an array, got:", data);
         }
       } else {
-        console.error("Invalid API response:", response);
+        console.log(response);
       }
     } catch (error) {
       console.error("Error during loading:", error);
@@ -209,12 +210,12 @@ const CrawlerPage: React.FC = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = Array.isArray(chatbotWebsites)
-  ? chatbotWebsites.slice(indexOfFirstItem, indexOfLastItem)
-  : [];
+  const currentItems = chatbotWebsites.slice(indexOfFirstItem, indexOfLastItem);
 
-  const handlePageChange = (pageNumber: number) => setCurrentPage(pageNumber);
- 
+  const handlePageChange = async (pageNumber: number) =>  {
+   setCurrentPage(pageNumber);
+  } 
+
   return (
     <div className="container mx-auto mt-5">
       <div className="bg-white shadow rounded-lg p-5">
@@ -352,9 +353,9 @@ const CrawlerPage: React.FC = () => {
                         <td>{site.contentLength}</td>
                         <td>
                           {site.istrained ? (
-                            <input type="checkbox" defaultChecked disabled className="checkbox checkbox-accent checkbox-md" />
+                            <input type="checkbox" readOnly defaultChecked  className=" checkbox-accent checkbox-md checkbox pointer-events-none" />
                           ) : (
-                            <input type="checkbox" disabled className="checkbox checkbox-accent checkbox-md" />
+                            <input type="checkbox" readOnly className=" checkbox-accent checkbox-md checkbox pointer-events-none" />
                           )}
                         </td>
                         <td>
@@ -374,18 +375,20 @@ const CrawlerPage: React.FC = () => {
                   <button className="btn btn-error text-white btn-outline " onClick={handleDelete}>Delete Selected Row</button>
                 </div>
               </div>
-               {/* Buttons for Pagination */}
+               {/* Pagination */}
                <div className="join mt-5">
-                  {[...Array(totalPages)].map((_, idx) => (
-                    <button
-                      key={idx}
-                      className={`join-item btn ${currentPage === idx + 1 ? 'btn-active' : ''}`}
-                      onClick={() => handlePageChange(idx + 1)}
-                    >
-                      {idx + 1}
-                    </button>
-                  ))}
+                   <Pagination
+                      totalItems={totalPages}
+                      itemsPerPage={itemsPerPage}
+                      currentPage={currentPage}
+                      onPageChange={handlePageChange}
+                    />
               </div>
+          </div>
+        )}
+        {chatbotWebsites.length === 0 && (
+          <div className="text-center">
+            No data
           </div>
         )}
         <p className="mt-5 text-gray-600">

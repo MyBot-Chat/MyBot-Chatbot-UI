@@ -84,9 +84,9 @@ const FileDataGrid = () => {
                 <td className="px-4 py-2 border-b">{file.contentLength}</td>
                 <td className="px-4 py-2 border-b">
                 {file.isTrained ? (
-                    <input type="checkbox" disabled defaultChecked className="checkbox checkbox-accent checkbox-md" />
+                    <input type="checkbox"  className="checkbox pointer-events-none checkbox-accent checkbox-md" readOnly defaultChecked />
                   ) : (
-                    <input type="checkbox" disabled className="checkbox checkbox-accent checkbox-md" />
+                    <input type="checkbox"  className="checkbox pointer-events-none checkbox-accent checkbox-md" readOnly />
                 )}
                 </td>
                 <td className="px-4 py-2 border-b">{file.createdDate ? formatDate(file.createdDate) : 'N/A'}</td>
