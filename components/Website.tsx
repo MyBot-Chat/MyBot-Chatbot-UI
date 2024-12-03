@@ -3,6 +3,7 @@ import { ChatbotWebsite } from "@/utils/dtos/DataDto";
 import { webService } from "@/services/web.service";
 import Swal from "sweetalert2";
 import { EditIcon } from "lucide-react";
+import Pagination from "./Pagination";
 
 const CrawlerPage: React.FC = () => {
   const [urlcrawl, setUrlcrawl] = useState<string>("");
@@ -182,12 +183,11 @@ const CrawlerPage: React.FC = () => {
           setChatbotWebsites(data);
   
           const totalLength = data.reduce(
-            (sum: number, site: ChatbotWebsite) => sum + (site.contentLength || 0), // Ensure `contentLength` exists
+            (sum: number, site: ChatbotWebsite) => sum + (site.contentLength || 0),
             0
           );
           setTotalContentLength(totalLength);
-          const calculatedTotalPages = Math.ceil(total / itemsPerPage);
-          setTotalPages(calculatedTotalPages);
+          setTotalPages(total);
 
         } else {
           console.error("Expected data to be an array, got:", data);
@@ -375,18 +375,14 @@ const CrawlerPage: React.FC = () => {
                   <button className="btn btn-error text-white btn-outline " onClick={handleDelete}>Delete Selected Row</button>
                 </div>
               </div>
-               {/* Buttons for Pagination */}
+               {/* Pagination */}
                <div className="join mt-5">
-                
-                  {[...Array(totalPages)].map((_, idx) => (
-                    <button
-                      key={idx}
-                      className={`join-item btn ${currentPage === idx + 1 ? 'btn-active' : ''}`}
-                      onClick={() => handlePageChange(idx + 1)}
-                    >
-                      {idx + 1}
-                    </button>
-                  ))}
+                   <Pagination
+                      totalItems={totalPages}
+                      itemsPerPage={itemsPerPage}
+                      currentPage={currentPage}
+                      onPageChange={handlePageChange}
+                    />
               </div>
           </div>
         )}
