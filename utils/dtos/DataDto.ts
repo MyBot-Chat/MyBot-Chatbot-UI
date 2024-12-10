@@ -51,3 +51,43 @@ export interface SitemapCrawlRequestDto {
   SitemapUrl : string;  
 }
 
+export interface DetailDTO {
+  label: string;
+  details: string;
+}
+
+export interface ChatSession {
+  id: string;
+
+  botId: string;
+
+  title: string;
+
+  createdOn: Date;
+
+  systemDescription?: string;
+
+  safeSystemDescription?: string;
+
+  memoryBalance: number;
+
+  enabledPlugins?: string[];
+
+  version: string;
+
+  lastQuestion: string;
+
+  lastMessage: string;
+
+  totalMessage: number;
+
+  hasSaleLead: boolean;
+
+  saleLeadContact?: string;
+
+  saleLeadDetails?: string;
+  
+  saleLeadDetailList?: DetailDTO[];
+}
+
+

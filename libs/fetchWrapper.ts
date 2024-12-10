@@ -51,6 +51,25 @@ const get = async (endpoint: string, query?: any) => {
     }
 };
 
+const getSessionAll = async (endpoint: string) => {
+    try {
+        const url = `${endpoint}`;
+        const res = await axiosInstance.get(url);
+        return {
+            statusCode: res.status,
+            message: res.statusText,
+            data: res.data,
+        };
+    } catch (error: any) {
+        return {
+            statusCode: error.response ? error.response.status : 500,
+            message: error.response ? error.response.statusText : 'An error occurred',
+            data: null,
+        };
+    }
+};
+
+
 const post = async (endpoint: string, body: any,  onProgress?: (progressEvent: AxiosProgressEvent) => void) => {
     try {
         const res = await axiosInstance.post(endpoint, body,
@@ -99,4 +118,4 @@ const handleAxiosError = (error: any) => {
 };
 
 
-export default { get, post, update, del };
+export default { get, post, update, del, getSessionAll };
