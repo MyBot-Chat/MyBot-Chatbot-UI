@@ -1,10 +1,13 @@
+import Chatlog from "@/components/Chatlog"
 import TabBar from "@/components/TabBar"
 
 const ChatLog = () => {
     return (
         <>
-             <TabBar />
-            <h1 className="text-center"> Comming Soon</h1>
+            <TabBar />
+            <div className="mb-5">
+                <Chatlog />    
+            </div>
         </>
     )
 }
