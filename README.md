@@ -273,7 +273,7 @@ Current Features:
 - [x] Training Chatbot with Q&A 
 - [x] Console Page for testing Chatbot
 - [x] Training Chatbot with Websites
-- [ ] ChatLog: for viewing chat history
+- [x] ChatLog: for viewing chat history
 - [ ] Lead: for viewing sale lead
 
 ![Chatbot Management](/public/img/chatbot-management.png)
